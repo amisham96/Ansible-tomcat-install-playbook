@@ -7,7 +7,7 @@
   tasks:
     - name: Install Open Jdk
       apt: 
-        name: openjdk-11-jre-headless
+        name: openjdk-11-jdk-headless
 
     - name: Create a Tomcat User
       user:
@@ -46,5 +46,16 @@
         recurse: yes
         state: directory
  
-    - name: Starting the tomcat service
-      shell: nohup /opt/tomcat9/apache-tomcat-9.0.64/bin/startup.sh
+    - name: Copy tomcat.service file
+      template:
+        src: templates/tomcat.service.j2
+        dest: /etc/systemd/system/tomcat.service
+        mode: 0644
+
+    - name: Start and enable tomcat
+      service:
+        daemon_reload: yes
+        name: tomcat
+        state: started
+        enabled: yes
+      when: ansible_service_mgr == "systemd"
